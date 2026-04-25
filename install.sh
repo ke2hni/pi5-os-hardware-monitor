@@ -134,6 +134,7 @@ Icon=${APP_ID}
 Terminal=false
 Categories=Utility;GTK;
 StartupNotify=true
+StartupWMClass=${APP_ID}
 DESKTOP
     chmod 0644 "${DESKTOP_PATH}"
 

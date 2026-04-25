@@ -29,6 +29,7 @@ from gi.repository import Gtk, GLib, Pango
 
 
 APP_ID = "pi5-os-hardware-monitor"
+APP_NAME = "Pi 5 OS Hardware Monitor"
 APP_ICON_PATH = f"/usr/share/pixmaps/{APP_ID}.png"
 
 APP_START_TIME = time.monotonic()
@@ -1570,7 +1571,9 @@ class PiHardwareMonitor(Gtk.Window):
     def __init__(self):
         super().__init__(title="Pi 5 OS Hardware Monitor v1.0")
         try:
+            Gtk.Window.set_default_icon_from_file(APP_ICON_PATH)
             self.set_icon_from_file(APP_ICON_PATH)
+            self.set_wmclass(APP_ID, APP_NAME)
         except Exception:
             pass
         self.set_default_size(1240, 699)
