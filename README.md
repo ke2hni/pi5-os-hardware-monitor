@@ -207,3 +207,8 @@ If this project helped you:
 🐛 Report issues  
 💡 Suggest improvements  
 
+<img width="1920" height="1080" alt="Screenshot 2026-04-25 171921" src="https://github.com/user-attachments/assets/0553d9f7-c637-465d-9334-109ad74f432a" />
+<img width="1920" height="1080" alt="Screenshot 2026-04-25 171932" src="https://github.com/user-attachments/assets/4f0e9a2f-960d-4d7f-b3f6-971c0694cc90" />
+<img width="1920" height="1080" alt="Screenshot 2026-04-25 171938" src="https://github.com/user-attachments/assets/bc5b1105-df19-4e66-a4ba-4e753e1f14b7" />
+<img width="1920" height="1080" alt="Screenshot 2026-04-25 171944" src="https://github.com/user-attachments/assets/851ac652-eb7e-4c48-874e-834eb4c38d4b" />
+<img width="1920" height="1080" alt="Screenshot 2026-04-25 171950" src="https://github.com/user-attachments/assets/b5bd6cfe-3b2d-462c-ba75-0fb2eae4d9bf" />
