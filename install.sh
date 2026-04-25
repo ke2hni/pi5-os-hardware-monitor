@@ -90,7 +90,7 @@ install_application() {
 
     cat > "${BIN_PATH}" <<WRAPPER
 #!/usr/bin/env bash
-exec python3 "${INSTALL_DIR}/app.py" "\$@"
+exec env GTK_APPLICATION_ID=pi5-os-hardware-monitor python3 "${INSTALL_DIR}/app.py" "$@"
 WRAPPER
     chmod 0755 "${BIN_PATH}"
 }
