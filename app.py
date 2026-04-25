@@ -28,9 +28,9 @@ gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, GLib, Pango
 
 
-APP_ID = "pi5-os-hardware-monitor"
-APP_NAME = "Pi 5 OS Hardware Monitor"
-APP_ICON_PATH = f"/usr/share/pixmaps/{APP_ID}.png"
+APP_ID = "io.github.ke2hni.pi5_os_hardware_monitor"
+APP_DESKTOP_ID = "pi5-os-hardware-monitor"
+APP_ICON_PATH = f"/usr/share/pixmaps/{APP_DESKTOP_ID}.png"
 
 APP_START_TIME = time.monotonic()
 NA = "Not Available"
