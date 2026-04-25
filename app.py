@@ -1736,7 +1736,11 @@ class PiHardwareMonitor(Gtk.Window):
 
     def on_destroy(self, *args):
         self.stop_timers()
-        Gtk.main_quit()
+        app = self.get_application()
+        if app is not None:
+            app.quit()
+        else:
+            Gtk.main_quit()
 
     def on_tab_switched(self, notebook, page, page_num):
         if page_num < 0 or page_num >= len(self.page_ids):
@@ -1938,11 +1942,20 @@ class PiHardwareMonitor(Gtk.Window):
         self.set_row(page, "Network", "MAC Address", get_primary_mac())
         self.set_row(page, "Network", "Hostname", get_hostname())
 
+class PiHardwareApp(Gtk.Application):
+    def __init__(self):
+        super().__init__(application_id=APP_ID)
+
+    def do_activate(self):
+        win = PiHardwareMonitor()
+        win.set_application(self)
+        win.connect("destroy", win.on_destroy)
+        win.show_all()
+
+
 def main():
-    win = PiHardwareMonitor()
-    win.connect("destroy", win.on_destroy)
-    win.show_all()
-    Gtk.main()
+    app = PiHardwareApp()
+    app.run(None)
 
 
 if __name__ == "__main__":
