@@ -1442,10 +1442,33 @@ def apply_label_style(label, scale=1.0, bold=False):
     label.set_attributes(attributes)
 
 
+TEMP_ROWS = {"CPU Temp", "I/O Temp", "Power Chip Temp", "SMART Temp"}
+
+
+def temperature_color(value):
+    match = re.search(r"([-+]?\d+(?:\.\d+)?)\s*°C", str(value))
+    if not match:
+        return None
+
+    try:
+        temp_c = float(match.group(1))
+    except Exception:
+        return None
+
+    if temp_c >= 80:
+        return "red"
+    if temp_c >= 65:
+        return "orange"
+    if temp_c >= 55:
+        return "goldenrod"
+    return "green"
+
+
 
 class ValueRow(Gtk.Box):
     def __init__(self, label):
         super().__init__(orientation=Gtk.Orientation.HORIZONTAL, spacing=12)
+        self.row_name = label
         self.set_margin_top(1)
         self.set_margin_bottom(1)
 
@@ -1477,8 +1500,15 @@ class ValueRow(Gtk.Box):
         self.pack_start(self.value, True, True, 0)
 
     def set_value(self, value):
-        self.value.set_text(str(value))
-        apply_label_style(self.value, scale=1.05, bold=True)
+        text = str(value)
+        color = temperature_color(text) if self.row_name in TEMP_ROWS else None
+
+        if color:
+            escaped_text = GLib.markup_escape_text(text)
+            self.value.set_markup(f'<span foreground="{color}"><b>{escaped_text}</b></span>')
+        else:
+            self.value.set_text(text)
+            apply_label_style(self.value, scale=1.05, bold=True)
 
 
 class Section(Gtk.Frame):
