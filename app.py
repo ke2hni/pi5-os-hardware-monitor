@@ -29,9 +29,9 @@ from gi.repository import Gtk, GLib, Pango
 
 
 APP_ID = "io.github.ke2hni.pi5_os_hardware_monitor"
-APP_DESKTOP_ID = "pi5-os-hardware-monitor"
+APP_ICON_NAME = "pi5-os-hardware-monitor"
 APP_NAME = "Pi 5 OS Hardware Monitor"
-APP_ICON_PATH = f"/usr/share/pixmaps/{APP_DESKTOP_ID}.png"
+APP_ICON_PATH = f"/usr/share/icons/hicolor/256x256/apps/{APP_ICON_NAME}.png"
 
 APP_START_TIME = time.monotonic()
 NA = "Not Available"
@@ -1572,9 +1572,11 @@ class PiHardwareMonitor(Gtk.Window):
     def __init__(self):
         super().__init__(title="Pi 5 OS Hardware Monitor v1.0")
         try:
+            Gtk.Window.set_default_icon_name(APP_ICON_NAME)
             Gtk.Window.set_default_icon_from_file(APP_ICON_PATH)
+            self.set_icon_name(APP_ICON_NAME)
             self.set_icon_from_file(APP_ICON_PATH)
-            self.set_wmclass(APP_DESKTOP_ID, APP_NAME)
+            self.set_wmclass(APP_ID, APP_NAME)
         except Exception:
             pass
         self.set_default_size(1240, 699)
@@ -1948,6 +1950,9 @@ class PiHardwareApp(Gtk.Application):
         super().__init__(application_id=APP_ID)
 
     def do_activate(self):
+        GLib.set_application_name(APP_NAME)
+        GLib.set_prgname(APP_ID)
+
         win = PiHardwareMonitor()
         win.set_application(self)
         win.connect("destroy", win.on_destroy)
@@ -1955,6 +1960,9 @@ class PiHardwareApp(Gtk.Application):
 
 
 def main():
+    GLib.set_application_name(APP_NAME)
+    GLib.set_prgname(APP_ID)
+
     app = PiHardwareApp()
     app.run(None)
 

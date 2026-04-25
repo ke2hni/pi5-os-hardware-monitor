@@ -9,7 +9,7 @@ BIN_PATH="/usr/local/bin/${APP_ID}"
 DESKTOP_PATH="/usr/share/applications/${GTK_APP_ID}.desktop"
 LEGACY_DESKTOP_PATH="/usr/share/applications/${APP_ID}.desktop"
 ICON_PATH="/usr/share/pixmaps/${APP_ID}.png"
-ICON_THEME_PATH="/usr/share/icons/hicolor/256x256/apps/${APP_ID}.png"
+ICON_THEME_DIR="/usr/share/icons/hicolor"
 SUDOERS_PATH="/etc/sudoers.d/${APP_ID}"
 REQUIRED_GROUP="pi-hardware-monitor"
 MIN_PYTHON_MAJOR=3
@@ -84,13 +84,35 @@ install_application() {
     install -d -m 0755 "${INSTALL_DIR}"
     install -m 0755 "${APP_SOURCE}" "${INSTALL_DIR}/app.py"
     install -m 0644 "${ICON_SOURCE}" "${ICON_PATH}"
-    install -d -m 0755 /usr/share/icons/hicolor/256x256/apps
-    install -m 0644 "${ICON_SOURCE}" "${ICON_THEME_PATH}"
-    gtk-update-icon-cache /usr/share/icons/hicolor >/dev/null 2>&1 || true
+
+    log "Installing application icons"
+    python3 - "${ICON_SOURCE}" "${ICON_THEME_DIR}" "${APP_ID}" <<'PY'
+import sys
+import gi
+
+gi.require_version("GdkPixbuf", "2.0")
+from gi.repository import GdkPixbuf
+
+source, theme_dir, icon_name = sys.argv[1:4]
+sizes = (32, 48, 64, 128, 256)
+
+pixbuf = GdkPixbuf.Pixbuf.new_from_file(source)
+
+for size in sizes:
+    scaled = pixbuf.scale_simple(size, size, GdkPixbuf.InterpType.BILINEAR)
+    out_dir = f"{theme_dir}/{size}x{size}/apps"
+    out_path = f"{out_dir}/{icon_name}.png"
+
+    import os
+    os.makedirs(out_dir, mode=0o755, exist_ok=True)
+    scaled.savev(out_path, "png", [], [])
+PY
+
+    gtk-update-icon-cache "${ICON_THEME_DIR}" >/dev/null 2>&1 || true
 
     cat > "${BIN_PATH}" <<WRAPPER
 #!/usr/bin/env bash
-exec env GTK_APPLICATION_ID=pi5-os-hardware-monitor python3 "${INSTALL_DIR}/app.py" "$@"
+exec python3 "${INSTALL_DIR}/app.py" "\$@"
 WRAPPER
     chmod 0755 "${BIN_PATH}"
 }
@@ -131,6 +153,7 @@ configure_permissions() {
 install_desktop_launcher() {
     log "Installing desktop launcher"
     rm -f "${LEGACY_DESKTOP_PATH}"
+
     cat > "${DESKTOP_PATH}" <<DESKTOP
 [Desktop Entry]
 Type=Application
@@ -156,8 +179,8 @@ validate_install() {
     command -v vcgencmd >/dev/null || fail "vcgencmd missing"
     command -v nvme >/dev/null || fail "nvme-cli missing"
     [[ -f "${ICON_PATH}" ]] || fail "icon missing from ${ICON_PATH}"
-    [[ -f "${ICON_THEME_PATH}" ]] || fail "hicolor icon missing from ${ICON_THEME_PATH}"
     [[ -f "${DESKTOP_PATH}" ]] || fail "desktop launcher missing from ${DESKTOP_PATH}"
+    [[ -f "${ICON_THEME_DIR}/256x256/apps/${APP_ID}.png" ]] || fail "hicolor icon missing"
     python3 -m py_compile "${INSTALL_DIR}/app.py"
 
     if [[ -n "${SUDO_USER_NAME}" ]] && id "${SUDO_USER_NAME}" >/dev/null 2>&1; then
