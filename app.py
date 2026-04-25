@@ -1442,10 +1442,26 @@ def apply_label_style(label, scale=1.0, bold=False):
     label.set_attributes(attributes)
 
 
-TEMP_ROWS = {"CPU Temp", "I/O Temp", "Power Chip Temp", "SMART Temp"}
+TEMP_COLORS = {
+    "cool": "#4A90E2",
+    "normal": "#4CAF50",
+    "warm": "#FFC107",
+    "hot": "#F44336",
+}
+
+TEMP_THRESHOLDS = {
+    "CPU Temp": {"cool": 45.0, "warm": 65.0, "hot": 80.0},
+    "I/O Temp": {"cool": 40.0, "warm": 60.0, "hot": 75.0},
+    "Power Chip Temp": {"cool": 45.0, "warm": 65.0, "hot": 80.0},
+    "SMART Temp": {"cool": 40.0, "warm": 55.0, "hot": 70.0},
+}
 
 
-def temperature_color(value):
+def temperature_color(row_name, value):
+    thresholds = TEMP_THRESHOLDS.get(row_name)
+    if not thresholds:
+        return None
+
     match = re.search(r"([-+]?\d+(?:\.\d+)?)\s*°C", str(value))
     if not match:
         return None
@@ -1455,14 +1471,14 @@ def temperature_color(value):
     except Exception:
         return None
 
-    if temp_c >= 80:
-        return "red"
-    if temp_c >= 65:
-        return "orange"
-    if temp_c >= 55:
-        return "goldenrod"
-    return "green"
+    if temp_c >= thresholds["hot"]:
+        return TEMP_COLORS["hot"]
+    if temp_c >= thresholds["warm"]:
+        return TEMP_COLORS["warm"]
+    if temp_c < thresholds["cool"]:
+        return TEMP_COLORS["cool"]
 
+    return TEMP_COLORS["normal"]
 
 
 class ValueRow(Gtk.Box):
@@ -1501,7 +1517,7 @@ class ValueRow(Gtk.Box):
 
     def set_value(self, value):
         text = str(value)
-        color = temperature_color(text) if self.row_name in TEMP_ROWS else None
+        color = temperature_color(self.row_name, text)
 
         if color:
             escaped_text = GLib.markup_escape_text(text)
