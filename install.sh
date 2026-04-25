@@ -3,9 +3,11 @@ set -Eeuo pipefail
 
 APP_NAME="Pi 5 OS Hardware Monitor"
 APP_ID="pi5-os-hardware-monitor"
+GTK_APP_ID="io.github.ke2hni.pi5_os_hardware_monitor"
 INSTALL_DIR="/opt/${APP_ID}"
 BIN_PATH="/usr/local/bin/${APP_ID}"
-DESKTOP_PATH="/usr/share/applications/${APP_ID}.desktop"
+DESKTOP_PATH="/usr/share/applications/${GTK_APP_ID}.desktop"
+LEGACY_DESKTOP_PATH="/usr/share/applications/${APP_ID}.desktop"
 ICON_PATH="/usr/share/pixmaps/${APP_ID}.png"
 SUDOERS_PATH="/etc/sudoers.d/${APP_ID}"
 REQUIRED_GROUP="pi-hardware-monitor"
@@ -124,6 +126,7 @@ configure_permissions() {
 
 install_desktop_launcher() {
     log "Installing desktop launcher"
+    rm -f "${LEGACY_DESKTOP_PATH}"
     cat > "${DESKTOP_PATH}" <<DESKTOP
 [Desktop Entry]
 Type=Application
@@ -134,7 +137,7 @@ Icon=${APP_ID}
 Terminal=false
 Categories=Utility;GTK;
 StartupNotify=true
-StartupWMClass=${APP_ID}
+StartupWMClass=${GTK_APP_ID}
 DESKTOP
     chmod 0644 "${DESKTOP_PATH}"
 
@@ -149,6 +152,7 @@ validate_install() {
     command -v vcgencmd >/dev/null || fail "vcgencmd missing"
     command -v nvme >/dev/null || fail "nvme-cli missing"
     [[ -f "${ICON_PATH}" ]] || fail "icon missing from ${ICON_PATH}"
+    [[ -f "${DESKTOP_PATH}" ]] || fail "desktop launcher missing from ${DESKTOP_PATH}"
     python3 -m py_compile "${INSTALL_DIR}/app.py"
 
     if [[ -n "${SUDO_USER_NAME}" ]] && id "${SUDO_USER_NAME}" >/dev/null 2>&1; then
