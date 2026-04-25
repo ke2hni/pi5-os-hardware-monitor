@@ -28,6 +28,9 @@ gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, GLib, Pango
 
 
+APP_ID = "pi5-os-hardware-monitor"
+APP_ICON_PATH = f"/usr/share/pixmaps/{APP_ID}.png"
+
 APP_START_TIME = time.monotonic()
 NA = "Not Available"
 
@@ -1566,6 +1569,10 @@ class Section(Gtk.Frame):
 class PiHardwareMonitor(Gtk.Window):
     def __init__(self):
         super().__init__(title="Pi 5 OS Hardware Monitor v1.0")
+        try:
+            self.set_icon_from_file(APP_ICON_PATH)
+        except Exception:
+            pass
         self.set_default_size(1240, 699)
         self.set_resizable(True)
         self.set_position(Gtk.WindowPosition.CENTER)
