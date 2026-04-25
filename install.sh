@@ -9,6 +9,7 @@ BIN_PATH="/usr/local/bin/${APP_ID}"
 DESKTOP_PATH="/usr/share/applications/${GTK_APP_ID}.desktop"
 LEGACY_DESKTOP_PATH="/usr/share/applications/${APP_ID}.desktop"
 ICON_PATH="/usr/share/pixmaps/${APP_ID}.png"
+ICON_THEME_PATH="/usr/share/icons/hicolor/256x256/apps/${APP_ID}.png"
 SUDOERS_PATH="/etc/sudoers.d/${APP_ID}"
 REQUIRED_GROUP="pi-hardware-monitor"
 MIN_PYTHON_MAJOR=3
@@ -83,6 +84,9 @@ install_application() {
     install -d -m 0755 "${INSTALL_DIR}"
     install -m 0755 "${APP_SOURCE}" "${INSTALL_DIR}/app.py"
     install -m 0644 "${ICON_SOURCE}" "${ICON_PATH}"
+    install -d -m 0755 /usr/share/icons/hicolor/256x256/apps
+    install -m 0644 "${ICON_SOURCE}" "${ICON_THEME_PATH}"
+    gtk-update-icon-cache /usr/share/icons/hicolor >/dev/null 2>&1 || true
 
     cat > "${BIN_PATH}" <<WRAPPER
 #!/usr/bin/env bash
@@ -152,6 +156,7 @@ validate_install() {
     command -v vcgencmd >/dev/null || fail "vcgencmd missing"
     command -v nvme >/dev/null || fail "nvme-cli missing"
     [[ -f "${ICON_PATH}" ]] || fail "icon missing from ${ICON_PATH}"
+    [[ -f "${ICON_THEME_PATH}" ]] || fail "hicolor icon missing from ${ICON_THEME_PATH}"
     [[ -f "${DESKTOP_PATH}" ]] || fail "desktop launcher missing from ${DESKTOP_PATH}"
     python3 -m py_compile "${INSTALL_DIR}/app.py"
 
