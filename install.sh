@@ -56,7 +56,8 @@ install_dependencies() {
         python3
         python3-gi
         gir1.2-gtk-3.0
-        libraspberrypi-bin
+        raspi-utils-core
+        raspi-utils-dt
         nvme-cli
         smartmontools
         pciutils
