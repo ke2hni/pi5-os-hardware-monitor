@@ -125,59 +125,81 @@ Not supported:
 
 ## 🌡️ Temperature Color Indicators
 
-The monitor uses dynamic color-coded temperature values to make it easier to quickly identify system conditions at a glance.
+The monitor uses **dynamic color-coded temperature values** to make it easier to quickly identify system conditions at a glance.
 
 Colors automatically adjust based on the sensor type and current temperature.
 
-🎨 Color Meaning
-Color	Meaning
-🔵 Blue	Cool / Below normal operating range
-🟢 Green	Normal operating temperature
-🟡 Amber	Warm / Elevated temperature
-🔴 Red	Hot / Attention recommended
-⚙️ Sensor-Aware Thresholds
+---
+
+### 🎨 Color Meaning
+
+| Color | Meaning |
+|------|--------|
+| 🔵 Blue | Cool / Below normal operating range |
+| 🟢 Green | Normal operating temperature |
+| 🟡 Amber | Warm / Elevated temperature |
+| 🔴 Red | Hot / Attention recommended |
+
+---
+
+### ⚙️ Sensor-Aware Thresholds
 
 Each temperature sensor uses its own threshold ranges (not a fixed global scale):
 
-CPU Temp → tuned for Pi 5 CPU behavior
-I/O Temp (rp1_adc) → lower baseline device
-Power Chip Temp (PMIC) → similar to CPU thermal profile
-NVMe SMART Temp → storage-specific thermal limits
+- **CPU Temp** → tuned for Pi 5 CPU behavior  
+- **I/O Temp (rp1_adc)** → lower baseline device  
+- **Power Chip Temp (PMIC)** → similar to CPU thermal profile  
+- **NVMe SMART Temp** → storage-specific thermal limits  
 
 This ensures temperatures are evaluated correctly based on the hardware they represent.
 
-🛠️ Customizing Colors
+---
+
+### 🛠️ Customizing Colors
 
 Color values are defined in:
 
+```python
 TEMP_COLORS = {
     "cool": "#4A90E2",
     "normal": "#4CAF50",
     "warm": "#FFC107",
     "hot": "#F44336",
 }
+```
 
 You can change these to any valid GTK/Pango color (hex recommended).
 
-🔧 Customizing Temperature Thresholds
+---
+
+### 🔧 Customizing Temperature Thresholds
 
 Thresholds are defined per sensor:
 
+```python
 TEMP_THRESHOLDS = {
     "CPU Temp": {"cool": 45, "warm": 65, "hot": 80},
     "I/O Temp": {"cool": 40, "warm": 60, "hot": 75},
     "Power Chip Temp": {"cool": 45, "warm": 65, "hot": 80},
     "SMART Temp": {"cool": 40, "warm": 55, "hot": 70},
 }
-How it works:
-Below cool → Blue
-Between cool and warm → Green
-Between warm and hot → Amber
-Above hot → Red
-💡 Notes
-Colors are chosen to work in both light and dark themes
-No background services are used — colors update live with the active tab
-If a value cannot be parsed (missing or unavailable), no color is applied
+```
+
+#### How it works:
+
+- Below `cool` → Blue  
+- Between `cool` and `warm` → Green  
+- Between `warm` and `hot` → Amber  
+- Above `hot` → Red  
+
+---
+
+### 💡 Notes
+
+- Colors are chosen to work in **both light and dark themes**
+- No background services are used — colors update live with the active tab
+- If a value cannot be parsed (missing or unavailable), no color is applied
+
 
 ## Development
 
