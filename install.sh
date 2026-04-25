@@ -127,7 +127,7 @@ Name=${APP_NAME}
 Comment=Raspberry Pi 5 desktop hardware monitor
 Exec=${BIN_PATH}
 Terminal=false
-Categories=System;Monitor;GTK;
+Categories=Utility;GTK;
 StartupNotify=true
 DESKTOP
     chmod 0644 "${DESKTOP_PATH}"
