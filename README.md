@@ -1,15 +1,27 @@
 # 🚀 Pi 5 OS Hardware Monitor
 
-A native Raspberry Pi OS desktop hardware monitor for **Raspberry Pi 5**.
+![Platform](https://img.shields.io/badge/Platform-Raspberry%20Pi%205-blue)
+![OS](https://img.shields.io/badge/OS-Raspberry%20Pi%20OS-green)
+![Language](https://img.shields.io/badge/Python-3.x-yellow)
+![License](https://img.shields.io/badge/License-MIT-lightgrey)
 
-Built with **Python + GTK 3**. Simple desktop app:
-- ❌ No background service
-- ❌ No logging/history
-- ✅ Lightweight & real-time
+A **native Raspberry Pi OS desktop hardware monitor** built specifically for **Raspberry Pi 5**.
+
+⚡ Fast • 🧼 Clean UI • 🪶 Lightweight • 🔍 Real-time
 
 ---
 
-## 📦 Install
+## 📸 Overview
+
+- 📊 Live system stats (no delays)
+- 🌡️ Smart temperature color indicators
+- ⚡ Power & throttling insights
+- 💾 Storage + NVMe monitoring
+- 🖥️ Clean GTK desktop interface
+
+---
+
+## 📦 Install (Fresh System Ready)
 
 ```bash
 sudo apt update
@@ -19,7 +31,7 @@ cd pi5-os-hardware-monitor
 sudo ./install.sh
 ```
 
-Launch from menu or:
+Launch:
 
 ```bash
 pi5-os-hardware-monitor
@@ -47,27 +59,41 @@ sudo ./uninstall.sh
 
 ---
 
-## 🧠 What it monitors
+## 🧠 Features
 
-- 📊 Overview — temps, fan, power, system
-- ⚡ Power — voltage, throttling, clocks
-- 💾 Storage — SD, USB, NVMe
-- 🚀 NVMe — SMART + PCIe
-- 🖥️ System — OS, CPU, memory
+### 📊 Overview Tab
+- CPU / I/O / Power chip temps
+- Fan RPM + power level
+- System summary
+- Network identity
+
+### ⚡ Power Tab
+- Input voltage & limits
+- Throttling status
+- Clock speeds
+- Power diagnostics
+
+### 💾 Storage Tab
+- Boot device detection
+- SD card info
+- USB storage
+- NVMe presence
+
+### 🚀 NVMe Tab (Auto)
+- SMART data
+- Drive health
+- PCIe link speed/width
+- Firmware + usage stats
+
+### 🖥️ System Tab
+- OS / Kernel
+- CPU / Memory / Load
+- Uptime
+- Process count
 
 ---
 
-## 🎯 Design Goals
-
-- Pi 5 only
-- No daemon
-- Active tab refresh only
-- Low CPU usage
-- Clean UI
-
----
-
-## 🌡️ Temperature Colors
+## 🌡️ Temperature Color System
 
 | Color | Meaning |
 |------|--------|
@@ -76,10 +102,15 @@ sudo ./uninstall.sh
 | 🟡 Amber | Warm |
 | 🔴 Red | Hot |
 
+✔ Sensor-specific thresholds  
+✔ Works in light & dark themes  
+✔ Updates in real time  
+
 ---
 
 ## 🛠️ Customization
 
+### Colors
 ```python
 TEMP_COLORS = {
     "cool": "#4A90E2",
@@ -89,9 +120,90 @@ TEMP_COLORS = {
 }
 ```
 
+### Thresholds
+```python
+TEMP_THRESHOLDS = {
+    "CPU Temp": {"cool": 45, "warm": 65, "hot": 80},
+    "I/O Temp": {"cool": 40, "warm": 60, "hot": 75},
+    "Power Chip Temp": {"cool": 45, "warm": 65, "hot": 80},
+    "SMART Temp": {"cool": 40, "warm": 55, "hot": 70},
+}
+```
+
+---
+
+## 🔐 Permissions
+
+Installer configures secure hardware access:
+
+- `nvme`
+- `smartctl`
+
+Via:
+```bash
+/etc/sudoers.d/pi5-os-hardware-monitor
+```
+
+---
+
+## ⚙️ Dependencies
+
+Installed automatically:
+- python3
+- GTK3 bindings
+- nvme-cli
+- smartmontools
+- pciutils
+- util-linux
+- procps
+
+---
+
+## 🧩 Design Philosophy
+
+- ✔ Pi 5 only (no legacy clutter)
+- ✔ No background services
+- ✔ No telemetry/logging
+- ✔ Minimal CPU usage
+- ✔ Clean, readable UI
+
 ---
 
 ## ⚠️ Notes
 
-- Works on Pi OS Desktop only
-- NVMe tab appears only if detected
+- NVMe tab appears only when detected
+- Designed for Raspberry Pi OS Desktop
+- Not compatible with Pi 4 or headless setups
+
+---
+
+## 🧪 Development
+
+Run locally:
+
+```bash
+python3 app.py
+```
+
+Check syntax:
+
+```bash
+python3 -m py_compile app.py
+```
+
+---
+
+## 📜 License
+
+MIT License
+
+---
+
+## ⭐ Support
+
+If this project helped you:
+
+⭐ Star the repo  
+🐛 Report issues  
+💡 Suggest improvements  
+
