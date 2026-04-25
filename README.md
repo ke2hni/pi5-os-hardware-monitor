@@ -21,11 +21,15 @@ pi5-os-hardware-monitor
 If NVMe SMART data does not appear immediately after install, log out and back in once so your desktop session picks up the new `pi-hardware-monitor` group membership.
 
 ## Upgrade
+The reset step makes sure any local installer/runtime files are restored to the official GitHub version before upgrading.
 
 ```bash
-cd pi5-os-hardware-monitor
+
+cd ~/pi5-os-hardware-monitor
+git reset --hard
 git pull
 sudo ./install.sh
+
 ```
 
 The installer is safe to re-run. It refreshes package metadata, installs missing dependencies, upgrades required packages when apt has newer compatible versions, refreshes the app file, and revalidates the sudoers rule.
