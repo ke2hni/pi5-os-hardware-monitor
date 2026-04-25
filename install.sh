@@ -6,6 +6,7 @@ APP_ID="pi5-os-hardware-monitor"
 INSTALL_DIR="/opt/${APP_ID}"
 BIN_PATH="/usr/local/bin/${APP_ID}"
 DESKTOP_PATH="/usr/share/applications/${APP_ID}.desktop"
+ICON_PATH="/usr/share/pixmaps/${APP_ID}.png"
 SUDOERS_PATH="/etc/sudoers.d/${APP_ID}"
 REQUIRED_GROUP="pi-hardware-monitor"
 MIN_PYTHON_MAJOR=3
@@ -26,7 +27,9 @@ fi
 
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 APP_SOURCE="${PROJECT_ROOT}/app.py"
+ICON_SOURCE="${PROJECT_ROOT}/icon.png"
 [[ -f "${APP_SOURCE}" ]] || fail "app.py was not found beside install.sh"
+[[ -f "${ICON_SOURCE}" ]] || fail "icon.png was not found beside install.sh"
 
 is_pi5() {
     local model
@@ -77,6 +80,7 @@ install_application() {
     log "Installing ${APP_NAME} to ${INSTALL_DIR}"
     install -d -m 0755 "${INSTALL_DIR}"
     install -m 0755 "${APP_SOURCE}" "${INSTALL_DIR}/app.py"
+    install -m 0644 "${ICON_SOURCE}" "${ICON_PATH}"
 
     cat > "${BIN_PATH}" <<WRAPPER
 #!/usr/bin/env bash
@@ -126,6 +130,7 @@ Type=Application
 Name=${APP_NAME}
 Comment=Raspberry Pi 5 desktop hardware monitor
 Exec=${BIN_PATH}
+Icon=${APP_ID}
 Terminal=false
 Categories=Utility;GTK;
 StartupNotify=true
@@ -142,6 +147,7 @@ validate_install() {
     command -v python3 >/dev/null || fail "python3 missing"
     command -v vcgencmd >/dev/null || fail "vcgencmd missing"
     command -v nvme >/dev/null || fail "nvme-cli missing"
+    [[ -f "${ICON_PATH}" ]] || fail "icon missing from ${ICON_PATH}"
     python3 -m py_compile "${INSTALL_DIR}/app.py"
 
     if [[ -n "${SUDO_USER_NAME}" ]] && id "${SUDO_USER_NAME}" >/dev/null 2>&1; then
