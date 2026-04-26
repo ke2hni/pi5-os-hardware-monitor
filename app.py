@@ -1110,17 +1110,82 @@ def get_nvme_media_errors():
     return clean_nvme_integer(value) if value != NA else NA
 
 
-def get_nvme_mountpoint():
+def get_nvme_mounts():
     device = nvme_device()
     if not device:
-        return NA
-    output = run_command(["lsblk", "-nr", "-o", "NAME,MOUNTPOINT", device])
+        return []
+
+    base = os.path.basename(device)
+    output = run_command(["findmnt", "-rn", "-o", "SOURCE,TARGET,FSTYPE,SIZE,USED,AVAIL,USE%"], timeout=3)
+    if output == NA:
+        return []
+
+    mounts = []
     for line in output.splitlines():
-        if "/" in line:
-            parts = line.split(None, 1)
-            if len(parts) == 2:
-                return unescape_lsblk_path(parts[1])
-    return "Not Mounted"
+        parts = line.split(None, 6)
+        if len(parts) < 7:
+            continue
+
+        source, target, fstype, size, used, avail, use_percent = parts
+        if not source.startswith(f"/dev/{base}p"):
+            continue
+
+        mounts.append({
+            "source": source,
+            "target": unescape_lsblk_path(target),
+            "fstype": fstype,
+            "size": size,
+            "used": used,
+            "avail": avail,
+            "use_percent": use_percent,
+        })
+
+    return mounts
+
+
+def get_preferred_nvme_mount():
+    mounts = get_nvme_mounts()
+    if not mounts:
+        return None
+
+    for mount in mounts:
+        target = mount["target"].lower()
+        if mount["fstype"] == "ext4" or "rootfs" in target:
+            return mount
+
+    for mount in mounts:
+        if mount["fstype"] not in ["vfat", "fat", "fat32"]:
+            return mount
+
+    return mounts[0]
+
+
+def get_nvme_mountpoint():
+    mount = get_preferred_nvme_mount()
+    if not mount:
+        return "Not Mounted" if nvme_present() else NA
+    return mount["target"]
+
+
+def get_nvme_free_space():
+    mount = get_preferred_nvme_mount()
+    if not mount:
+        return "Not Mounted" if nvme_present() else NA
+    return mount["avail"]
+
+
+def get_nvme_used_space():
+    mount = get_preferred_nvme_mount()
+    if not mount:
+        return "Not Mounted" if nvme_present() else NA
+    return f"{mount['used']} / {mount['size']} ({mount['use_percent']})"
+
+
+def get_nvme_filesystem():
+    mount = get_preferred_nvme_mount()
+    if not mount:
+        return "Not Mounted" if nvme_present() else NA
+    return mount["fstype"]
 
 
 def get_nvme_pci_path():
@@ -1235,6 +1300,9 @@ def collect_nvme_data():
             "Unsafe Shutdowns": NA,
             "Media Errors": NA,
             "Mounted At": NA,
+            "Filesystem": NA,
+            "Free Space": NA,
+            "Used Space": NA,
             "Current Speed": NA,
             "Current Width": NA,
             "Max Speed": NA,
@@ -1254,6 +1322,9 @@ def collect_nvme_data():
         "Unsafe Shutdowns": get_nvme_unsafe_shutdowns(),
         "Media Errors": get_nvme_media_errors(),
         "Mounted At": get_nvme_mountpoint(),
+        "Filesystem": get_nvme_filesystem(),
+        "Free Space": get_nvme_free_space(),
+        "Used Space": get_nvme_used_space(),
         "Current Speed": get_current_link_speed(),
         "Current Width": get_current_link_width(),
         "Max Speed": get_max_link_speed(),
@@ -1668,7 +1739,8 @@ class PiHardwareMonitor(Gtk.Window):
                 ]),
             ], [
                 ("NVMe Details", "SMART and firmware details", [
-                    "Firmware", "Life Used", "Power-on Hours", "Unsafe Shutdowns", "Media Errors", "Mounted At",
+                    "Firmware", "Life Used", "Power-on Hours", "Unsafe Shutdowns", "Media Errors",
+                    "Mounted At", "Filesystem", "Free Space", "Used Space",
                 ]),
             ]])
 
@@ -1889,8 +1961,18 @@ class PiHardwareMonitor(Gtk.Window):
         self.set_row(page, "External USB Storage", "Mounted At", get_usb_mountpoint())
 
 
+    def refresh_nvme_mount_rows(self):
+        self.set_row("nvme", "NVMe Details", "Mounted At", get_nvme_mountpoint())
+        self.set_row("nvme", "NVMe Details", "Filesystem", get_nvme_filesystem())
+        self.set_row("nvme", "NVMe Details", "Free Space", get_nvme_free_space())
+        self.set_row("nvme", "NVMe Details", "Used Space", get_nvme_used_space())
+
     def start_nvme_scan_once(self):
-        if self.nvme_scan_running or self.nvme_scan_loaded:
+        if self.nvme_scan_running:
+            return False
+
+        if self.nvme_scan_loaded:
+            self.refresh_nvme_mount_rows()
             return False
 
         self.nvme_scan_running = True
@@ -1910,7 +1992,10 @@ class PiHardwareMonitor(Gtk.Window):
         for row in ["SMART Temp", "Manufacturer", "Model", "Capacity", "Drive Health"]:
             self.set_row("nvme", "NVMe Drive", row, results.get(row, NA))
 
-        for row in ["Firmware", "Life Used", "Power-on Hours", "Unsafe Shutdowns", "Media Errors", "Mounted At"]:
+        for row in [
+            "Firmware", "Life Used", "Power-on Hours", "Unsafe Shutdowns", "Media Errors",
+            "Mounted At", "Filesystem", "Free Space", "Used Space",
+        ]:
             self.set_row("nvme", "NVMe Details", row, results.get(row, NA))
 
         for row in ["Current Speed", "Current Width", "Max Speed", "Max Width"]:
