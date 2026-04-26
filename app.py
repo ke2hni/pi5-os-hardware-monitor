@@ -1641,7 +1641,7 @@ class Section(Gtk.Frame):
 
 class PiHardwareMonitor(Gtk.Window):
     def __init__(self):
-        super().__init__(title="Pi 5 OS Hardware Monitor v1.0")
+        super().__init__(title="Pi 5 OS Hardware Monitor v1.5")
         try:
             Gtk.Window.set_default_icon_name(APP_ICON_NAME)
             Gtk.Window.set_default_icon_from_file(APP_ICON_PATH)
@@ -1665,7 +1665,7 @@ class PiHardwareMonitor(Gtk.Window):
         title_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
 
         header = Gtk.Label()
-        header.set_text("Pi 5 OS Hardware Monitor v1.0 4/25/2026")
+        header.set_text("Pi 5 OS Hardware Monitor v1.5 4/25/2026")
         apply_label_style(header, scale=1.35, bold=True)
         header.set_halign(Gtk.Align.START)
         subtitle = Gtk.Label(label="Raspberry Pi 5 desktop hardware monitor. No background service. Only the active tab refreshes.")
